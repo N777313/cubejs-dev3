@@ -9,4 +9,5 @@ cd analytics-master/
 ./start-docker-manually.sh  
 ### последующии запуск можно только запускать  (это команда просто запускает CubeJS без измениния)
 ./docker-up.sh
-
+### остановка CubeJS 
+CTRL+c  
