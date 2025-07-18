@@ -1,0 +1,3 @@
+cube(`ProjectResponsible`, {
+  extends: UserEmployee
+});

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  cubejs:
+    image: gitlab.seoon.ru:5050/pms/analytics:dev
+    entrypoint: ./run.sh
+    environment:
+      CUBEJS_DB_TYPE: mysql
+      CUBEJS_DB_SSL: 'true'
+      CUBEJS_DB_SSL_REJECT_UNAUTHORIZED: 'false'
+      REDIS_URL: redis://redis
+      CUBEJS_PORT: 4000
+      CUBEJS_WEB_SOCKETS: 'true'
+
+
+    restart: on-failure
+  redis:
+    image: redis:6
+    restart: always

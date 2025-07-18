@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  cube:
+    build: .
+    ports:
+      - "4001:4000"
+    restart: on-failure
+    env_file: .env
+    environment:
+      CUBEJS_EXT_DB_HOST: externalDb
+      CUBEJS_EXT_DB_NAME: preAggregations
+      CUBEJS_EXT_DB_PORT: 3306
+      CUBEJS_EXT_DB_USER: root
+      CUBEJS_EXT_DB_PASS: root
+    volumes:
+      - .:/cube/conf
+    networks:
+      - backend_default
+  redis:
+    image: redis:6
+    restart: always
+  externalDb:
+    image: mysql
+    command: "--default-authentication-plugin=mysql_native_password"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=preAggregations
+    ports:
+      - 3307:3306
+    networks:
+      - backend_default
+networks:
+  backend_default:
+    external: true

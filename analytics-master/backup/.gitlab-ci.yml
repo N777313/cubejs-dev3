@@ -1,0 +1,75 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE_TAG: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_BRANCH}"
+
+build:
+  image: docker:20.10.16
+  stage: build
+  services:
+    - docker:20.10.16-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
+  tags:
+    - build
+  only:
+    - dev
+    - master
+
+deploy_dev:
+  image: docker:19.03.12
+  stage: deploy
+  services:
+    - docker:19.03.12-dind
+  variables:
+    DOCKER_HOST: "tcp://${MANAGER_IP}:2376"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs"
+  environment:
+    name: staging
+  before_script:
+    - mkdir -p $DOCKER_CERT_PATH
+    - echo "$TLSCACERT" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$TLSCERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$TLSKEY" > $DOCKER_CERT_PATH/key.pem
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $IMAGE_TAG
+    - docker service update $DEV_SERVICE_NAME --image $IMAGE_TAG --with-registry-auth
+    - rm -rf $DOCKER_CERT_PATH
+  only:
+    - dev
+
+deploy_prod:
+  image: docker:19.03.12
+  stage: deploy
+  services:
+    - docker:19.03.12-dind
+  variables:
+    DOCKER_HOST: "tcp://${MANAGER_IP}:2376"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs"
+  environment:
+    name: staging
+  before_script:
+    - mkdir -p $DOCKER_CERT_PATH
+    - echo "$TLSCACERT" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$TLSCERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$TLSKEY" > $DOCKER_CERT_PATH/key.pem
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $IMAGE_TAG
+    - docker service update $KST_SERVICE_NAME --image $IMAGE_TAG --with-registry-auth
+    - docker service update $YAR_SERVICE_NAME --image $IMAGE_TAG --with-registry-auth
+    - rm -rf $DOCKER_CERT_PATH
+  when: manual
+  only:
+    - master

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  cube:
+    image: cubejs/cube:latest
+    ports:
+      - "4002:4000"
+    restart: on-failure
+    env_file: .env
+    environment:
+      - DEBUG=cubejs:query
+    volumes:
+      - .:/cube/conf
+    networks:
+      - backend_default
+
+  mysql:
+    image: mysql:8.0
+    command: "--default-authentication-plugin=mysql_native_password"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=calc
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend_default
+
+  redis:
+    image: redis:6
+    restart: always
+    networks:
+      - backend_default
+
+volumes:
+  mysql_data:
+
+networks:
+  backend_default:
+    driver: bridge

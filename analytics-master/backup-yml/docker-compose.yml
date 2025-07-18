@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  cube:
+    image: gitlab.seoon.ru:5050/pms/analytics:dev
+    depends_on:
+      - redis
+    ports:
+      - 4000:4000
+      - 3000:4000
+    restart: on-failure
+    entrypoint: ./run.sh
+    environment:
+      CUBEJS_DEV_MODE: 'true'
+      CUBEJS_DB_TYPE: mysql
+      CUBEJS_DB_SSL: 'true'
+      CUBEJS_DB_SSL_REJECT_UNAUTHORIZED: 'false'
+      REDIS_URL: redis://redis
+    env_file: ${CUBE_ENV:-.env}
+  redis:
+    image: redis:6
+    restart: always
+  externalDb:
+    image: mysql
+    command: "--default-authentication-plugin=mysql_native_password"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${EXTERNAL_DB_PASS}
+      - MYSQL_DATABASE=preAggregations
+    ports:
+      - ${EXTERNAL_DB_PORT}:3306

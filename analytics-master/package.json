@@ -1,0 +1,23 @@
+{
+  "name": "pms-analytics",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "./node_modules/.bin/cubejs-dev-server",
+    "win-dev": "node node_modules/.bin/cubejs-dev-server.cmd",
+    "prod": "./node_modules/.bin/cubejs-server server"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "mysql2": "^3.9.1",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "@cubejs-backend/api-gateway": "^1.3.34",
+    "@cubejs-backend/cubestore-driver": "^1.3.34",
+    "@cubejs-backend/mongobi-driver": "^1.3.34",
+    "@cubejs-backend/mysql-driver": "^1.3.34",
+    "@cubejs-backend/server": "^1.3.34"
+  }
+}

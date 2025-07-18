@@ -1,0 +1,6 @@
+# Cube Store pre-aggregations
+.cubestore/
+
+# Node.js
+node_modules/
+analytics-master/.cubestore/

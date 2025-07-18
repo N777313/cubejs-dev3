@@ -1,0 +1,6 @@
+.env*
+node_modules
+env_backup
+db_dump.sql
+.cubestore
+.idea
